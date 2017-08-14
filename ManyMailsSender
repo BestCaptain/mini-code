@@ -1,0 +1,66 @@
+using System;
+using System.Net;
+using System.IO;
+using System.Threading.Tasks;
+using System.Net.Mail;
+using System.Text;
+using System.Collections.Generic;
+
+ 
+ 
+ 
+namespace NetConsoleApp
+{
+    class Mails
+    {
+        public static void Main()
+        {
+            //Create a loop/cycle and an array that will extract information from a file and substitute Addresses and FullNames to their places.
+            //Здесь мы создаём цикл с массивом которые будут вытаскивать информацию из txt файла и подставлять его в массив. 
+            string[] test = File.ReadAllLines(@"C:\PATH TO YOUR TXT FILE WHERE ADDRESSES ARE STORED");
+            foreach (string address in test)
+            {
+                MailMessage m = new MailMessage();
+                //Сreate the sender. You should write down your mail addres and your name in the strings.
+                //Создаём отправителя. Вы должны написать свою почту и имя между ковычек.
+                m.From = new MailAddress("example@example.com", "TestName");
+                
+                //Create a variable with an array and divide the contents of the TXT file.
+                //Создаёт переменную которая делит информацию в массиве из txt файла.
+                var pairs = address.Split(new char[] { ':', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                //Create the recipient. pairs[0] - is a addresses, pairs[1] - is a FullNames.
+                //Создаёт получателя. pairs[0] - это адресс эл. почты в массиве, pairs[1] - это имя получателя.
+                MailAddress to = new MailAddress(pairs[0], pairs[1]);
+                m.To.Add(to);
+                
+                //We make the encoding - UTF8, to m.Subject.
+                //Ставим кодировку UTF8 для m.Subject.
+                m.HeadersEncoding = Encoding.UTF8;
+                
+                //This is a header of the letter.
+                //Это заголовок письма.
+                m.Subject = "Тест";
+                
+                //This is a body of the letter. pairs[1] - adds the FullNames to the letter.
+                //Это тело письма, т.е. само письмо. pairs[1] - добавляет имя к письму.
+                m.Body = "Hello dear  " + pairs[1];
+                m.IsBodyHtml = true;
+                
+                //We should write down the smtp server's information. ("server", port)
+                //Тут мы записывает информацию о smtp сервере. ("сервер", порт)
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
+                //Here you should write down your mail address and password for this address. ("yourmail@example.com", "password from your mail")
+                //Здесь вы должны записать свой адресс эл. почты и пароль к ней. ("вашапочта@пример.com", "пароль к вашей почте")
+                smtp.Credentials = new NetworkCredential("example@example.con", "test12345");
+                smtp.EnableSsl = true;
+                smtp.Send(m);
+                //This is not a big cmd log.
+                //Это что то вроде cmd лога.
+                Console.WriteLine("Почта отправлена! for" + m.To.ToString());
+ 
+            }
+            Console.Read();
+        }
+    }
+}
